@@ -90,7 +90,7 @@ export default function Login() {
                         </CardContent>
 
                         <CardFooter className=" flex-col items-center">
-                            <Button color="red" disabled={false} className="w-full">Entrar</Button>
+                            <Button  disabled={false} className="bg-orange-500 w-full hover:bg-orange-400">Entrar</Button>
                             <p className="text-gray-400 pt-5"> ou</p>
                         </CardFooter>
                     </form>

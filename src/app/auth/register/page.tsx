@@ -10,30 +10,35 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { useForm } from "react-hook-form"
-import { CredentialsSchema } from "../../../../schemas/auth"
+import { CredentialsSchema, CredentialsSchemaRegister } from "../../../../schemas/auth"
 import { z } from "zod"
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { useTransition } from "react"
 import { useRouter } from "next/navigation"
-export default function Login() {
+export default function Register() {
     const [isPending, startTransition] = useTransition()
-    const form = useForm<z.infer<typeof CredentialsSchema>>({
-        resolver: zodResolver(CredentialsSchema),
+    const form = useForm<z.infer<typeof CredentialsSchemaRegister>>({
+        resolver: zodResolver(CredentialsSchemaRegister),
         defaultValues: {
             email: "",
-            password: ""
+            password: "",
+            passwordConfirm: ""
         }
     })
     const router = useRouter()
-    async function onSubmit(values: z.infer<typeof CredentialsSchema>) {
+    async function onSubmit(values: z.infer<typeof CredentialsSchemaRegister>) {
+        console.log(values)
 
         const request = await fetch("/api/users", {
             method: "POST",
             headers: {
                 "content-Type": "application/json",
             },
-            body: JSON.stringify(values)
+            body: JSON.stringify({
+                email: values.email,
+                password: values.password
+            })
         })
 
         const response = await request.json()
@@ -89,7 +94,26 @@ export default function Login() {
                                         <FormControl>
                                             <Input
                                                 type="password"
-                                                placeholder="seuemail@gmail.com"
+                                                placeholder="Digite sua senha"
+                                                required
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField
+                                control={form.control}
+                                name="passwordConfirm"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Confirme sua senha</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                type="password"
+                                                placeholder="Digite sua senha novamente"
                                                 required
                                                 {...field}
                                             />
@@ -102,7 +126,8 @@ export default function Login() {
                         </CardContent>
 
                         <CardFooter>
-                            <Button disabled={false} className="w-full">Entrar</Button>
+                            <Button disabled={false} className="bg-orange-500 w-full hover:bg-orange-400">Registrar</Button>
+
                         </CardFooter>
                     </form>
                     <CardFooter className="items-center justify-center">

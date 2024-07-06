@@ -1,10 +1,18 @@
-import Image from "next/image";
-import Login from "./auth/login/page";
+import { redirect } from "next/navigation";
+import { auth } from "../../auth";
 
-export default function Home() {
+export default async function Home() {
+
+  const session = await auth()
+  if (!session?.user) {
+      redirect("/auth/login");
+  } else {
+      redirect("/dashboard");
+  }
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-     
-    </main>
+
+      <main className="flex min-h-screen flex-col items-center justify-between p-24">
+      
+      </main>
   );
 }

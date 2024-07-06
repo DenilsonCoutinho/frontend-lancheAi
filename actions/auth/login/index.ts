@@ -9,11 +9,11 @@ export const login = async (credentials: z.infer<typeof CredentialsSchema>) => {
 	
 	try {
 
-        console.log(credentials)
 		const resp = await signIn("credentials", {
-			credentials,
-            redirectTo:"/dashboard"
+			...credentials,
+            redirectTo: "/dashboard",
 		});
+		console.log(resp);
 	} catch (err) {
 		if (err instanceof AuthError) {
 			if (err instanceof CredentialsSignin) {
@@ -23,6 +23,6 @@ export const login = async (credentials: z.infer<typeof CredentialsSchema>) => {
 			}
 		}
 
-		throw err; // Rethrow all other errors
+		throw err; 
 	}
 };

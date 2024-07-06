@@ -14,9 +14,8 @@ import { CredentialsSchema } from "../../../../schemas/auth"
 import { z } from "zod"
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { FormEvent, useTransition } from "react"
-import { login } from "../../../../actions/auth/login"
-import { redirect, useRouter } from "next/navigation"
+import { useTransition } from "react"
+import { useRouter } from "next/navigation"
 export default function Login() {
     const [isPending, startTransition] = useTransition()
     const form = useForm<z.infer<typeof CredentialsSchema>>({
@@ -27,27 +26,40 @@ export default function Login() {
         }
     })
     const router = useRouter()
+    async function onSubmit(values: z.infer<typeof CredentialsSchema>) {
+
+        const request = await fetch("/api/users", {
+            method: "POST",
+            headers: {
+                "content-Type": "application/json",
+            },
+            body: JSON.stringify(values)
+        })
+
+        const response = await request.json()
+
+        if (!request.ok) {
+            alert("Erro interno!")
+        } else {
+            router.push('/auth/login')
+        }
+    }
+
     function toRegister() {
-        router.push('/auth/register')
-
+        router.push('/auth/login')
     }
-    async function onSubmit(values: z.infer<typeof CredentialsSchema>,) {
-
-        const resp = await login(values);
-    }
-
     return (
-        <main className="flex min-h-screen flex-col items-center pt-24 justify-between">
+        <main className="flex min-h-screen flex-col  pt-24 items-center justify-between">
             <Card className="w-full max-w-sm">
                 <CardHeader>
-                    <CardTitle className="text-2xl">Login</CardTitle>
+                    <CardTitle className="text-2xl">Registrar</CardTitle>
                     <CardDescription>
-                        Insira seus dados abaixo para fazer login.
+                        Insira seus dados abaixo para fazer seu registro.
                     </CardDescription>
                 </CardHeader>
 
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} >
+                    <form onSubmit={form.handleSubmit(onSubmit)}>
                         <CardContent className="grid gap-4">
                             <FormField
                                 control={form.control}
@@ -89,13 +101,12 @@ export default function Login() {
 
                         </CardContent>
 
-                        <CardFooter className=" flex-col items-center">
-                            <Button color="red" disabled={false} className="w-full">Entrar</Button>
-                            <p className="text-gray-400 pt-5"> ou</p>
+                        <CardFooter>
+                            <Button disabled={false} className="w-full">Entrar</Button>
                         </CardFooter>
                     </form>
-                    <CardFooter className="">
-                        <Button variant="secondary" onClick={() => toRegister()} disabled={false} className="w-full">Registre-se</Button>
+                    <CardFooter className="items-center justify-center">
+                        <p>Já possui conta? <span onClick={() => toRegister()} className="text-blue-500 cursor-pointer">Clique aqui</span></p>
                     </CardFooter>
                 </Form>
             </Card>

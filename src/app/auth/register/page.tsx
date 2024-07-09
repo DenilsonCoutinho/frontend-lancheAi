@@ -28,7 +28,6 @@ export default function Register() {
     })
     const router = useRouter()
     async function onSubmit(values: z.infer<typeof CredentialsSchemaRegister>) {
-        console.log(values)
 
         const request = await fetch("/api/users", {
             method: "POST",
@@ -40,8 +39,6 @@ export default function Register() {
                 password: values.password
             })
         })
-
-        const response = await request.json()
 
         if (!request.ok) {
             alert("Erro interno!")

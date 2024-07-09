@@ -3,33 +3,39 @@ import Credentials from "next-auth/providers/credentials";
 import { NextAuthConfig } from "next-auth"
 import bcrypt from "bcrypt"
 import { db as prisma } from "./src/lib/db"
+import { CredentialsSchema } from "./schemas/auth";
+import { UserNotFound } from "./lib/user-not-found";
 
 export default {
-	providers: [
-		Credentials({
-			async authorize(credentials) {
-				if (!credentials?.email || !credentials?.password) {
-                    throw new Error('erro de credenciais')
-                }
+    providers: [
+        Credentials({
+            async authorize(credentials) {
+                console.log("aqui")
+                const findUserbyEmail = async (email: string) => {
+                    const user = await prisma.user.findUnique({
+                        where: {
+                            email,
+                        },
+                    });
+                    return user;
+                };
 
-                const user = await prisma.user.findUnique({
-                    where: {
-                        email: credentials?.email as string
+                const validdCredentials = CredentialsSchema.safeParse(credentials);
+                console.log(credentials)
+                if (validdCredentials.success) {
+                    const { email, password } = validdCredentials.data;
+                    const user = await findUserbyEmail(email);
+                    if (!user || !user.hashedPassword) {
+                        throw new UserNotFound();
                     }
-                })
-                if (!user || !user.hashedPassword) {
-                    throw new Error('não registrado!')
+                    const validPassword = await bcrypt.compare(password, user.hashedPassword);
+                    if (validPassword) return user;
                 }
+                return null;
 
-                const matchedPassword = await bcrypt.compare(credentials.password as string, user.hashedPassword )
+            },
+        }),
 
-                if (!matchedPassword) {
-                    throw new Error('Senha incorreta!')
-                }
-                return user
-			},
-		}),
-
-	],
+    ],
 
 } satisfies NextAuthConfig;

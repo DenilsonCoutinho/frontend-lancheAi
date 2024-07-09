@@ -14,10 +14,14 @@ import { CredentialsSchema } from "../../../../schemas/auth"
 import { z } from "zod"
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { FormEvent, useTransition } from "react"
+import { FormEvent, useState, useTransition } from "react"
 import { login } from "../../../../actions/auth/login"
 import { redirect, useRouter } from "next/navigation"
 export default function Login() {
+
+    const [error, setError] = useState<string>("");
+    const [success, setSuccess] = useState<string>("");
+
     const [isPending, startTransition] = useTransition()
     const form = useForm<z.infer<typeof CredentialsSchema>>({
         resolver: zodResolver(CredentialsSchema),
@@ -34,6 +38,22 @@ export default function Login() {
     async function onSubmit(values: z.infer<typeof CredentialsSchema>,) {
 
         const resp = await login(values);
+
+        if (!resp) {
+            setError("Resposta inválida do servidor");
+            setSuccess("");
+            form.reset();
+            return;
+        }
+
+        const { error } = resp;
+        if (error) {
+            setError(resp.error);
+            setSuccess("");
+            form.reset();
+            return;
+        }
+
     }
 
     return (
@@ -81,16 +101,17 @@ export default function Login() {
                                                 required
                                                 {...field}
                                             />
+
                                         </FormControl>
                                         <FormMessage />
+                                        <p className="text-xs text-red-600">{error}</p>
                                     </FormItem>
                                 )}
                             />
 
                         </CardContent>
-
                         <CardFooter className=" flex-col items-center">
-                            <Button  disabled={false} className="bg-orange-500 w-full hover:bg-orange-400">Entrar</Button>
+                            <Button disabled={false} className="bg-orange-500 w-full hover:bg-orange-400">Entrar</Button>
                             <p className="text-gray-400 pt-5"> ou</p>
                         </CardFooter>
                     </form>

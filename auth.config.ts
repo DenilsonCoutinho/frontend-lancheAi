@@ -1,7 +1,7 @@
 import Credentials from "next-auth/providers/credentials";
 
 import { NextAuthConfig } from "next-auth"
-import bcrypt from "bcrypt"
+import bcryptjs from "bcryptjs"
 import { db as prisma } from "./src/lib/db"
 import { CredentialsSchema } from "./schemas/auth";
 import { UserNotFound } from "./lib/user-not-found";
@@ -28,7 +28,7 @@ export default {
                     if (!user || !user.hashedPassword) {
                         throw new UserNotFound();
                     }
-                    const validPassword = await bcrypt.compare(password, user.hashedPassword);
+                    const validPassword = await bcryptjs.compare(password, user.hashedPassword);
                     if (validPassword) return user;
                 }
                 return null;

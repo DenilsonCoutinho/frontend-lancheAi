@@ -10,14 +10,18 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { useForm } from "react-hook-form"
-import { CredentialsSchema, CredentialsSchemaRegister } from "../../../../schemas/auth"
+import {  CredentialsSchemaRegister } from "../../../../schemas/auth"
 import { z } from "zod"
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { useTransition } from "react"
+import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
+import { register } from "../../../../actions/auth/register"
 export default function Register() {
     const [isPending, startTransition] = useTransition()
+    const [error, setError] = useState<string>("");
+    const [success, setSuccess] = useState<string>("");
+
     const form = useForm<z.infer<typeof CredentialsSchemaRegister>>({
         resolver: zodResolver(CredentialsSchemaRegister),
         defaultValues: {
@@ -29,25 +33,20 @@ export default function Register() {
     const router = useRouter()
     async function onSubmit(values: z.infer<typeof CredentialsSchemaRegister>) {
 
-        const request = await fetch("/api/users", {
-            method: "POST",
-            headers: {
-                "content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                email: values.email,
-                password: values.password
-            })
-        })
+        const valid = await CredentialsSchemaRegister.safeParse(values);
 
-        if (!request.ok) {
-            alert("Erro interno!")
-        } else {
-            router.push('/auth/login')
+        if (!valid.success) {
+            return {
+                error: "Dados inválidos",
+            };
         }
+
+        await register(values)
+        router.push('/auth/login')
+
     }
 
-    function toRegister() {
+    function toLogin() {
         router.push('/auth/login')
     }
     return (
@@ -128,7 +127,7 @@ export default function Register() {
                         </CardFooter>
                     </form>
                     <CardFooter className="items-center justify-center">
-                        <p>Já possui conta? <span onClick={() => toRegister()} className="text-blue-500 cursor-pointer">Clique aqui</span></p>
+                        <p>Já possui conta? <span onClick={() => toLogin()} className="text-blue-500 cursor-pointer">Clique aqui</span></p>
                     </CardFooter>
                 </Form>
             </Card>

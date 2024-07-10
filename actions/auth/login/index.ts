@@ -4,7 +4,7 @@ import { AuthError, CredentialsSignin } from "next-auth";
 import { signIn } from "../../../auth";
 import { CredentialsSchema } from "../../../schemas/auth";
 import { z } from "zod";
-import bcrypt from "bcrypt"
+import bcryptjs from "bcryptjs"
 
 export const login = async (credentials: z.infer<typeof CredentialsSchema>) => {
 
@@ -36,7 +36,7 @@ export const login = async (credentials: z.infer<typeof CredentialsSchema>) => {
 			};
 		}
 
-		const validPassword = await bcrypt.compare(password, userExist?.hashedPassword as string);
+		const validPassword = await bcryptjs.compare(password, userExist?.hashedPassword as string);
 
 		if (!validPassword) {
 			return {

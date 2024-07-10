@@ -38,7 +38,7 @@ export default function Login() {
     async function onSubmit(values: z.infer<typeof CredentialsSchema>,) {
 
         const resp = await login(values);
-
+        console.log(resp)
         if (!resp) {
             setError("Resposta inválida do servidor");
             setSuccess("");

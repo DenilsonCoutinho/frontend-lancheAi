@@ -21,13 +21,13 @@ export default function Dashboard() {
     useEffect(() => {
 
         getData()
-        
+
     }, [])
-    
+
     if (data === null) {
         route.push('/')
     }
-    
+
     return <p>
         {JSON.stringify(data)}
 

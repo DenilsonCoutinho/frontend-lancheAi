@@ -8,7 +8,6 @@ export const {
 } = NextAuth({
 	session: {
 		strategy: "jwt",
-		maxAge: 60 * 1
 	},
 	pages:{
 		signIn:'/auth/login',

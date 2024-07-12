@@ -4,6 +4,8 @@ import { CredentialsSchemaRegister } from "../../../schemas/auth";
 import { z } from "zod";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import bcryptjs from 'bcryptjs';
+import { createVerificationToken } from "../../../services/auth/verify-user-email";
+import { sendAccountVerificationEmail } from "../verify-user-email";
 
 export const register = async (credentials: z.infer<typeof CredentialsSchemaRegister>) => {
 
@@ -43,16 +45,12 @@ export const register = async (credentials: z.infer<typeof CredentialsSchemaRegi
             }
         })
 
-        if (createdUser?.createdAt) {
-            return {
-                success: "Usuário criado com sucesso!"
-            }
+        const verificationToken = await createVerificationToken(email);
 
-        } else {
-            return {
-                error: "Erro interno!"
-            }
-        }
+        await sendAccountVerificationEmail(createdUser, verificationToken.token);
+		return {
+			success: "E-mail de verificação enviado",
+		};
 
     } catch (error) {
         if (error instanceof PrismaClientKnownRequestError) {

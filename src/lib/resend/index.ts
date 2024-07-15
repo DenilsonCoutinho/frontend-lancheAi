@@ -1,3 +1,3 @@
 import { Resend } from "resend";
-const mail = new Resend("re_RczrRCeP_8fLF4n69XWTbpuWjzzhgxE4h");
+const mail = new Resend(process.env.AUTH_RESEND_KEY);
 export default mail;

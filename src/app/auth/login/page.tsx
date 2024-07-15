@@ -14,9 +14,9 @@ import { CredentialsSchema } from "../../../../schemas/auth"
 import { z } from "zod"
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { FormEvent, useState, useTransition } from "react"
+import { useState, useTransition } from "react"
 import { login } from "../../../../actions/auth/login"
-import { redirect, useRouter } from "next/navigation"
+import { useRouter } from "next/navigation"
 export default function Login() {
 
     const [error, setError] = useState<string>("");
@@ -55,6 +55,7 @@ export default function Login() {
         }
 
     }
+
 
     return (
         <main className="flex min-h-screen flex-col items-center pt-24 justify-between">

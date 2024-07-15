@@ -1,15 +1,25 @@
 "use server"
-import mail from "@/lib/resend";
+
 import type { User } from "@prisma/client";
 import { findVerificationTokenbyToken } from "../../../services/auth/verify-user-email";
 
 import { db as prisma } from "@/lib/db";
 import { findUserbyEmail } from "../../../services";
+const nodemailer = require("nodemailer");
 
+
+const transporter = nodemailer.createTransport({
+	service: "gmail",
+	auth: {
+		user: "contact.denilsoncoutinho@gmail.com",
+		pass: process.env.PASSWORDNODEMAILER
+	},
+	port: 587,
+});
 
 export const sendAccountVerificationEmail = async (user: User, token: string) => {
-	const { RESEND_EMAIL_FROM, VERIFICATION_SUBJECT, NEXT_PUBLIC_URL, VERIFICATION_URL } = process.env;
-	if (!RESEND_EMAIL_FROM || !VERIFICATION_SUBJECT || !NEXT_PUBLIC_URL || !VERIFICATION_URL) {
+	const { VERIFICATION_SUBJECT, NEXT_PUBLIC_URL, VERIFICATION_URL } = process.env;
+	if (!VERIFICATION_SUBJECT || !NEXT_PUBLIC_URL || !VERIFICATION_URL) {
 		return {
 			error: "Configuração de ambiente insuficiente para envio de e-mail.",
 		};
@@ -17,18 +27,17 @@ export const sendAccountVerificationEmail = async (user: User, token: string) =>
 
 	const verificationUrl = `${NEXT_PUBLIC_URL}${VERIFICATION_URL}?token=${token}`;
 	const { email } = user;
+
 	try {
-		const { data, error } = await mail.emails.send({
-			from: RESEND_EMAIL_FROM,
-			to: email || "",
-			subject: VERIFICATION_SUBJECT,
+		console.log("aqui1");
+
+		const info = await transporter.sendMail({
+			from: '1 Igreja batista de joinville <contact.denilsoncoutinho@gmail.com>', // sender address
+			to: email, // list of receivers
+			subject: VERIFICATION_SUBJECT, // Subject line
 			html: `<p>Clique <a href="${verificationUrl}">aqui</a> para confirmar seu e-mail.</p>`,
 		});
-
-		if (error)
-			return {
-				error,
-			};
+		
 		return {
 			success: "E-mail enviado com sucesso",
 		};
@@ -44,7 +53,7 @@ export const verifyToken = async (token: string) => {
 
 
 	const existingToken = await findVerificationTokenbyToken(token);
-	
+
 	if (!existingToken) {
 		return {
 			error: "Código de verificação não encontrado",
@@ -58,7 +67,6 @@ export const verifyToken = async (token: string) => {
 			error: "Código de verificação expirado",
 		};
 	}
-	console.log('cvai aqui tb,')
 
 	const user = await findUserbyEmail(existingToken.email);
 	if (!user) {

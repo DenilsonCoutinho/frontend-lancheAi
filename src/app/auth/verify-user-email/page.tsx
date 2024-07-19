@@ -1,46 +1,55 @@
 "use client";
+import { Button } from "@/components/ui/button";
 import { verifyToken } from "../../../../actions/auth/verify-user-email";
 import { useSearchParams } from "next/navigation";
-import React, { Suspense, useCallback, useEffect, useState } from "react";
-import { db as prisma } from "@/lib/db";
+import React, { useEffect, useState } from "react";
+import Link from "next/link";
+import { resolve } from "path";
 
 
 const EmailVerificationForm = () => {
-    const [error, setError] = useState<string | undefined>(undefined);
-    const [success, setSuccess] = useState<string | undefined>(undefined);
+    const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
+    const [successMessage, setSuccessMessage] = useState<string | undefined>(undefined);
     const [data, setdata] = useState<[] | any>();
     const searchParams = useSearchParams();
-    // if (!searchParams || !searchParams.has("token")) return null;
     const token = searchParams.get("token");
-    const automaticSubmission = useCallback(() => {
-        if (error || success) return;
+
+    const automaticSubmission = async () => {
+        if (!searchParams || !searchParams.has("token")) return null;
+
+        if (errorMessage || successMessage) return;
 
         if (!token) {
-            setError("Token inválido");
+            setErrorMessage("Token inválido");
             return;
         }
 
-        
-         verifyToken(token)
-        .then((data) => {
-            console.log(data);
-                setdata(data);
-                setSuccess(data.success);
-                setError(data.error);
-            })
-            .catch((error) => {
-                setError("Algo deu errado");
-            });
-    }, [token, success, error]);
+
+        const { error, success } = await verifyToken(token)
+        if (success) {
+            setSuccessMessage('VERIFICAÇÃO CONCLUIDA COM SUCESSO!')
+            await new Promise(resolve => (setTimeout(resolve, 3000)))
+            window.location.href = "http://localhost:3000/auth/login"
+        } else {
+            setErrorMessage(error)
+        }
+    }
 
     useEffect(() => {
         automaticSubmission();
-    }, [automaticSubmission]);
+    }, []);
     return (
-        <div className="flex flex-1 justify-center items-center">
-            {error}
-            {success}
-        
+        <div className="flex min-h-screen flex-1 justify-center items-center">
+            <div className="flex rounded-2xl justify-center items-center flex-col border border-slate-300 h-96 w-96">
+                <h1 className="text-sm pb-5">
+                </h1>
+                <h1 className="text-sm pb-5">
+                    {successMessage || errorMessage}
+                </h1>
+                <Link href={'/auth/login'}>
+                    <Button>Fazer login</Button>
+                </Link>
+            </div>
         </div>
     );
 };

@@ -31,7 +31,6 @@ export const deleteVerificationTokenbyId = async (id: string) => {
 };
 
 export const createVerificationToken = async (email: string) => {
-	console.log("createVerificationToken")
 	const token = uuid();
 	const expires = new Date(new Date().getTime() + 2 * 60 * 60 * 1000); //two hours
 

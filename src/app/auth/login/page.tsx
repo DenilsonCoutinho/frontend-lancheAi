@@ -17,6 +17,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useState, useTransition } from "react"
 import { login } from "../../../../actions/auth/login"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 export default function Login() {
 
     const [error, setError] = useState<string>("");
@@ -38,7 +39,7 @@ export default function Login() {
     async function onSubmit(values: z.infer<typeof CredentialsSchema>,) {
 
         const resp = await login(values);
-        console.log(resp)
+        
         if (!resp) {
             setError("Resposta inválida do servidor");
             setSuccess("");
@@ -113,11 +114,20 @@ export default function Login() {
                         </CardContent>
                         <CardFooter className=" flex-col items-center">
                             <Button disabled={false} className="bg-orange-500 w-full hover:bg-orange-400">Entrar</Button>
-                            <p className="text-gray-400 pt-5"> ou</p>
+                            <div onClick={() => toRegister()} className="cursor-pointer w-full">
+                                <p className="text-md pt-4 text-black text-center">
+                                    Registre-se
+                                </p>
+                            </div>
+                            <Link href={'/auth/password-reset-request'}>
+                                <p className="text-md pt-4 text-black text-center">
+                                    Esqueci minha senha
+                                </p>
+                            </Link>
+
                         </CardFooter>
                     </form>
                     <CardFooter className="">
-                        <Button variant="secondary" onClick={() => toRegister()} disabled={false} className="w-full">Registre-se</Button>
                     </CardFooter>
                 </Form>
             </Card>

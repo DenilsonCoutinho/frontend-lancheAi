@@ -29,15 +29,14 @@ export const sendAccountVerificationEmail = async (user: User, token: string) =>
 	const { email } = user;
 
 	try {
-		console.log("aqui1");
 
-		const info = await transporter.sendMail({
+		const sendMail = await transporter.sendMail({
 			from: '1 Igreja batista de joinville <contact.denilsoncoutinho@gmail.com>', // sender address
 			to: email, // list of receivers
 			subject: VERIFICATION_SUBJECT, // Subject line
 			html: `<p>Clique <a href="${verificationUrl}">aqui</a> para confirmar seu e-mail.</p>`,
 		});
-		
+
 		return {
 			success: "E-mail enviado com sucesso",
 		};
@@ -53,7 +52,6 @@ export const verifyToken = async (token: string) => {
 
 
 	const existingToken = await findVerificationTokenbyToken(token);
-
 	if (!existingToken) {
 		return {
 			error: "Código de verificação não encontrado",
@@ -76,7 +74,6 @@ export const verifyToken = async (token: string) => {
 	}
 
 	try {
-		console.log('Ta updatando...')
 		await prisma.user.update({
 			where: { id: user.id },
 			data: {
@@ -89,7 +86,6 @@ export const verifyToken = async (token: string) => {
 				id: existingToken.id,
 			},
 		});
-
 		return {
 			success: "E-mail verificado",
 		};

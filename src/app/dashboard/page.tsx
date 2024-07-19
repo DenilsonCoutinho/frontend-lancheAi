@@ -27,10 +27,10 @@ export default function Dashboard() {
     if (data === null) {
         route.push('/')
     }
+ 
 
     return <p>
         {JSON.stringify(data)}
-
         <Button onClick={() => signOut({ callbackUrl: "/" })}>Sign In</Button>
     </p>
 }

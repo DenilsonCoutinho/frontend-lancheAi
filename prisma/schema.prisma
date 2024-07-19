@@ -19,7 +19,6 @@ model User {
   hashedPassword String?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
-  // accounts       Account[]
 }
 
 model Establishment {
@@ -73,3 +72,4 @@ model VerificationTokenUser {
 
   @@unique([email, token])
 }
+

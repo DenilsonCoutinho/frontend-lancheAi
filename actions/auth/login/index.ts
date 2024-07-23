@@ -44,12 +44,13 @@ export const login = async (credentials: z.infer<typeof CredentialsSchema>) => {
 			}
 		}
 
-
 		await signIn("credentials", {
 			email,
 			password,
-			redirectTo: '/dashboard'
-		});
+			// redirectTo: '/dashboard'
+		},);
+		
+		
 
 	} catch (err) {
 

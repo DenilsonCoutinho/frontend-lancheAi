@@ -1,6 +1,7 @@
 import { db as prisma } from "../../../lib/db"
 
- import * as bcrypt from 'bcrypt';
+import bcryptjs from "bcryptjs"
+
 
 import { NextRequest, NextResponse } from "next/server"
 
@@ -23,7 +24,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "E-mail já existente." }, { status: 400 })
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10)
+    const hashedPassword = await bcryptjs.hash(password, 10)
 
 
     const user = await prisma.user.create({

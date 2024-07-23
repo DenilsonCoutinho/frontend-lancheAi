@@ -41,7 +41,7 @@ export const sendAccountVerificationEmail = async (user: User, token: string) =>
 			success: "E-mail enviado com sucesso",
 		};
 	} catch (error) {
-		console.log(error);
+
 		return { error };
 	}
 };

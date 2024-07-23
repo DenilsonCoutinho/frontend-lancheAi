@@ -26,6 +26,9 @@ export default function Dashboard() {
 
     if (data === null) {
         route.push('/')
+    }else{
+        route.push('/dashboard')
+
     }
  
 

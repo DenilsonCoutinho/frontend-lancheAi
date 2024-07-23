@@ -10,7 +10,6 @@ export default {
     providers: [
         Credentials({
             async authorize(credentials) {
-                console.log("aqui")
                 const findUserbyEmail = async (email: string) => {
                     const user = await prisma.user.findUnique({
                         where: {
@@ -21,7 +20,6 @@ export default {
                 };
 
                 const validdCredentials = CredentialsSchema.safeParse(credentials);
-                console.log(credentials)
                 if (validdCredentials.success) {
                     const { email, password } = validdCredentials.data;
                     const user = await findUserbyEmail(email);

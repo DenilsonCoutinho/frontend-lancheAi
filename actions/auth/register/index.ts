@@ -26,7 +26,6 @@ export const register = async (credentials: z.infer<typeof CredentialsSchemaRegi
         }
     }
     try {
-
         const { email, password } = validCredentials.data;
 
         const hashedPassword = await bcryptjs.hash(password, 10)
@@ -48,9 +47,9 @@ export const register = async (credentials: z.infer<typeof CredentialsSchemaRegi
         const verificationToken = await createVerificationToken(email);
 
         await sendAccountVerificationEmail(createdUser, verificationToken.token);
-		return {
-			success: "E-mail de verificação enviado",
-		};
+        return {
+            success: "E-mail de verificação enviado",
+        };
 
     } catch (error) {
         if (error instanceof PrismaClientKnownRequestError) {

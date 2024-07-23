@@ -1,10 +1,13 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { verifyToken } from "../../../../actions/auth/verify-user-email";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { resolve } from "path";
+import { LoaderIcon } from "lucide-react";
+import { ToastAction } from "@/components/ui/toast";
+import { useToast } from "@/components/ui/use-toast";
+import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
 
 const EmailVerificationForm = () => {
@@ -13,8 +16,12 @@ const EmailVerificationForm = () => {
     const [data, setdata] = useState<[] | any>();
     const searchParams = useSearchParams();
     const token = searchParams.get("token");
+    const router = useRouter()
+    const [loading, setLoading] = useState<boolean | undefined>(false);
+    const { toast } = useToast()
 
     const automaticSubmission = async () => {
+        setLoading(true)
         if (!searchParams || !searchParams.has("token")) return null;
 
         if (errorMessage || successMessage) return;
@@ -27,12 +34,25 @@ const EmailVerificationForm = () => {
 
         const { error, success } = await verifyToken(token)
         if (success) {
-            setSuccessMessage('VERIFICAÇÃO CONCLUIDA COM SUCESSO!')
+            toast({
+                title: success,
+                description: "Verificação concluida com sucesso!",
+                action: <ToastAction altText="tente novamente">ok</ToastAction>,
+                className: "bg-green-500 relative text-white",
+
+            })
             await new Promise(resolve => (setTimeout(resolve, 3000)))
-            window.location.href = "http://localhost:3000/auth/login"
         } else {
-            setErrorMessage(error)
+            toast({
+                title: error,
+                description: ":(",
+                action: <ToastAction altText="tente novamente">ok</ToastAction>,
+                className: "bg-green-500 relative text-white",
+
+            })
         }
+        setLoading(false)
+
     }
 
     useEffect(() => {
@@ -40,15 +60,17 @@ const EmailVerificationForm = () => {
     }, []);
     return (
         <div className="flex min-h-screen flex-1 justify-center items-center">
-            <div className="flex rounded-2xl justify-center items-center flex-col border border-slate-300 h-96 w-96">
-                <h1 className="text-sm pb-5">
-                </h1>
-                <h1 className="text-sm pb-5">
-                    {successMessage || errorMessage}
-                </h1>
-                <Link href={'/auth/login'}>
-                    <Button>Fazer login</Button>
-                </Link>
+            <div className="flex rounded-2xl justify-center items-center flex-col  ">
+                <Card className="w-full max-w-sm">
+                    <CardHeader>
+                        <CardTitle className="text-2xl">Email verificado com sucesso!</CardTitle>
+                    </CardHeader>
+                    <CardFooter className=" flex-col items-center">
+                        <Button onClick={() => router.push("/auth/login")} disabled={false} className="bg-orange-500 w-full hover:bg-orange-400">
+                            <LoaderIcon className={!loading ? "hidden" : "animate-spin mr-2"} />
+                            Voltar</Button>
+                    </CardFooter>
+                </Card>
             </div>
         </div>
     );

@@ -4,6 +4,7 @@ import { z } from "zod"
 import { CredentialsSchemaResetPassword, NewPasswordSchema } from "../../../schemas/auth"
 import { findUserbyEmail } from "../../../services";
 import { createResetPasswordToken, deleteResetPasswordToken, findResetPasswordTokenByToken, updatePassword } from "../../../services/auth/password-reset-request";
+import { useToast } from "@/components/ui/use-toast"
 
 const nodemailer = require("nodemailer");
 
@@ -29,10 +30,9 @@ export const resetPassword = async (values: z.infer<typeof CredentialsSchemaRese
     if (!existingUser) {
         return { error: "Usuário não encontrado" };
     }
-    console.log(existingUser)
     const tokenUser = await createResetPasswordToken(email)
     await sendAccountVerificationPassword(tokenUser.email ,tokenUser.token)
-    return { success: "E-mail de mudança de senha enviado" };
+    return { success: "Verifique seu email" };
 
 }
 
@@ -61,7 +61,7 @@ export default async function sendAccountVerificationPassword(emailUser: string,
 			success: "E-mail enviado com sucesso",
 		};
 	} catch (error) {
-		console.log(error);
+		
 		return { error };
 	}
 }

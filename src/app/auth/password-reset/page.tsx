@@ -8,12 +8,16 @@ import { useForm } from "react-hook-form";
 import { NewPasswordSchema } from "../../../../schemas/auth";
 import { z } from "zod";
 import { changePassword, resetPassword } from "../../../../actions/auth/password-reset-request";
-import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useTransition } from "react";
+import { LoaderIcon } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
+import { ToastAction } from "@/components/ui/toast";
 
 export default function PasswordResetChange() {
-    const [error, setError] = useState<string | undefined>("");
-	const [success, setSuccess] = useState<string | undefined>("");
+
+    const [isPending, startTransition] = useTransition()
+    const [loading, setLoading] = useState<boolean | undefined>(false);
 
     const form = useForm<z.infer<typeof NewPasswordSchema>>({
         resolver: zodResolver(NewPasswordSchema),
@@ -22,40 +26,75 @@ export default function PasswordResetChange() {
         }
     })
     const searchParams = useSearchParams();
-	if (!searchParams || !searchParams.has("token")) return null;
-	const token = searchParams.get("token");
+    const router = useRouter()
+    const { toast } = useToast()
+
+    if (!searchParams || !searchParams.has("token")) return null;
+    const token = searchParams.get("token");
 
     async function onSubmit(values: z.infer<typeof NewPasswordSchema>,) {
+
         const validatedPassword = NewPasswordSchema.safeParse(values);
 
         if (!validatedPassword.success) {
             return { error: "Dados inválidos" };
         }
-        try {
-            const { success, error } = await changePassword(values, token);
-            if (error) setError(error);
-            setSuccess(success || "");
-            form.reset();
-        } catch (err) {
-            setSuccess("");
-            setError("Algo deu errado.");
-            form.reset();
-        }
+
+        startTransition(async () => {
+            setLoading(false)
+
+            await new Promise(resolve => setTimeout(resolve, 3000))
+
+            try {
+                const { success, error } = await changePassword(values, token);
+                if (error){
+                     toast({
+                        title: error,
+                        description: ":(",
+                        action: <ToastAction altText="tente novamente">ok</ToastAction>,
+                        className: "bg-red-500 relative text-white",
+    
+                    })
+                    return
+                };
+                toast({
+                    title: success,
+                    description: ":)",
+                    action: <ToastAction altText="tente novamente">ok</ToastAction>,
+                    className: "bg-green-500 relative text-white",
+
+                })
+                form.reset();
+            } catch (err) {
+                toast({
+                    title: "Algo deu errado.",
+                    description: ":(",
+                    action: <ToastAction altText="tente novamente">ok</ToastAction>,
+                    className: "bg-red-500 relative text-white",
+
+                })
+                form.reset();
+            }
+            setLoading(true)
+        })
 
 
     }
+    
     return (
         <>
             <main className="flex min-h-screen flex-col items-center pt-24 justify-between">
                 <Card className="w-full max-w-sm">
-                    <CardHeader>
+                    {!loading ? <CardHeader>
                         <CardTitle className="text-2xl">Insira sua senha nova</CardTitle>
-                        <CardDescription>
-                    
-                        </CardDescription>
                     </CardHeader>
+                        :
+                        <CardHeader>
+                            <CardTitle className="text-2xl">Senha alterada com sucesso!</CardTitle>
+                        </CardHeader>
+                    }
 
-                    <Form
+                    {!loading ? <Form
                         {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} >
                             <CardContent className="grid gap-4">
@@ -80,15 +119,25 @@ export default function PasswordResetChange() {
 
                             </CardContent>
                             <CardFooter className=" flex-col items-center">
-                                <Button disabled={false} className="bg-orange-500 w-full hover:bg-orange-400">Alterar</Button>
+                                <Button disabled={false} className="bg-orange-500 w-full hover:bg-orange-400">
+                                    <LoaderIcon className={!isPending ? "hidden" : "animate-spin mr-2"} />
+                                    Alterar
+                                </Button>
                             </CardFooter>
                         </form>
                         <CardFooter className="">
                         </CardFooter>
                     </Form>
+                        :
+                        <CardFooter className=" flex-col items-center">
+
+                            <Button onClick={() => router.push("/auth/login")} disabled={false} className="bg-orange-500 w-full hover:bg-orange-400">
+                                <LoaderIcon className={!isPending ? "hidden" : "animate-spin mr-2"} />
+                                Voltar</Button>
+                        </CardFooter>
+                    }
                 </Card>
-                {success}
-                {error}
+
             </main>
         </>
     )

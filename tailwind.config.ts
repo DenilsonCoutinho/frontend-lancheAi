@@ -18,6 +18,9 @@ const config = {
       },
     },
     extend: {
+      backgroundColor:{
+        "bgOrangeDefault": "#FFA13A"
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

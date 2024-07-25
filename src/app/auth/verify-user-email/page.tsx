@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { verifyToken } from "../../../../actions/auth/verify-user-email";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import Link from "next/link";
 import { LoaderIcon } from "lucide-react";
 import { ToastAction } from "@/components/ui/toast";
 import { useToast } from "@/components/ui/use-toast";
@@ -13,7 +12,6 @@ import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 const EmailVerificationForm = () => {
     const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
     const [successMessage, setSuccessMessage] = useState<string | undefined>(undefined);
-    const [data, setdata] = useState<[] | any>();
     const searchParams = useSearchParams();
     const token = searchParams.get("token");
     const router = useRouter()
@@ -66,7 +64,7 @@ const EmailVerificationForm = () => {
                         <CardTitle className="text-2xl">Email verificado com sucesso!</CardTitle>
                     </CardHeader>
                     <CardFooter className=" flex-col items-center">
-                        <Button onClick={() => router.push("/auth/login")} disabled={false} className="bg-orange-500 w-full hover:bg-orange-400">
+                        <Button onClick={() => router.push("/auth/login")} disabled={loading} className="bg-orange-500 w-full hover:bg-orange-400">
                             <LoaderIcon className={!loading ? "hidden" : "animate-spin mr-2"} />
                             Voltar</Button>
                     </CardFooter>

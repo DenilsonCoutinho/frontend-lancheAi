@@ -23,3 +23,9 @@ export const CredentialsSchemaResetPassword = z.object({
 export const NewPasswordSchema = z.object({
 	password: z.string().min(6,{message: "A senha deve conter mais que 6 digitos!"}),
 });
+
+
+export const DataEstablishmentSchema = z.object({
+    name: z.string(),
+    contact: z.string()
+})

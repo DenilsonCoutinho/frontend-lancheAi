@@ -24,9 +24,10 @@ model User {
 model Establishment {
   id                  String     @id @default(auto()) @map("_id") @db.ObjectId
   name                String     @unique
-  address             String
-  idEstablishmentName String
+  address             String?
+  idEstablishmentName String?
   categories          Category[]
+  logo                String?
 }
 
 model Category {
@@ -72,4 +73,3 @@ model VerificationTokenUser {
 
   @@unique([email, token])
 }
-

@@ -4,7 +4,6 @@ import { z } from "zod"
 import { CredentialsSchemaResetPassword, NewPasswordSchema } from "../../../schemas/auth"
 import { findUserbyEmail } from "../../../services";
 import { createResetPasswordToken, deleteResetPasswordToken, findResetPasswordTokenByToken, updatePassword } from "../../../services/auth/password-reset-request";
-import { useToast } from "@/components/ui/use-toast"
 
 const nodemailer = require("nodemailer");
 

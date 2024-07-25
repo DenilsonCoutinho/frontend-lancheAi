@@ -24,12 +24,12 @@ export default function Dashboard() {
 
     }, [])
 
-    if (data === null) {
-        route.push('/')
-    }else{
-        route.push('/dashboard')
+    // if (data === null) {
+    //     route.push('/')
+    // }else{
+    //     route.push('/dashboard')
 
-    }
+    // }
  
 
     return <p>

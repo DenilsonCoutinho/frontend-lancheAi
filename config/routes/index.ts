@@ -8,12 +8,11 @@ export const configRoutes: ConfigRoutes = {
 		"/auth/password-reset",
 		"/auth/password-reset-request",
 		"/auth/verify-email",
-		"/dataEstablishment",
 	],
 	authRoutes: ["/api/auth/signin"],
-	apiRoutes: ["/api/protected-api"],
+	apiRoutes: ["/api/protected-api","/dataEstablishment",],
 	protectedRoutes: [
 		"/dashboard",
-		"/example/multi-step-form/campaign",
+		"/dataEstablishment",
 	],
 };

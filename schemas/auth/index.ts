@@ -27,5 +27,10 @@ export const NewPasswordSchema = z.object({
 
 export const DataEstablishmentSchema = z.object({
     name: z.string(),
+    contact: z.string().min(14,{message: "Seu número provavelmente tem 11 caracteres "})
+})
+
+export const DataEstablishmentSchemaServer = z.object({
+    name: z.string(),
     contact: z.string()
 })

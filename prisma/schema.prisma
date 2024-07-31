@@ -11,21 +11,25 @@ datasource db {
 }
 
 model User {
-  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  id             String          @id @default(auto()) @map("_id") @db.ObjectId
   name           String?
-  email          String?   @unique
+  email          String?         @unique
   emailVerified  DateTime?
   image          String?
   hashedPassword String?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  establishment  Establishment[]
 }
 
 model Establishment {
-  id                  String     @id @default(auto()) @map("_id") @db.ObjectId
+  id                  String     @id @default(uuid()) @map("_id")
   name                String     @unique
+  contact             String     @unique
   address             String?
   idEstablishmentName String?
+  idEstablishment     String
+  establishment       User       @relation(fields: [idEstablishment], references: [id])
   categories          Category[]
   logo                String?
 }

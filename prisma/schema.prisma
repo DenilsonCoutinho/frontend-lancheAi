@@ -27,7 +27,7 @@ model Establishment {
   name                String     @unique
   contact             String     @unique
   address             String?
-  idEstablishmentName String?
+  idEstablishmentName String?    @unique
   idEstablishment     String
   establishment       User       @relation(fields: [idEstablishment], references: [id])
   categories          Category[]

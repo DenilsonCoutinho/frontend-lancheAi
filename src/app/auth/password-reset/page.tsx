@@ -1,5 +1,5 @@
 "use client"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
 import { NewPasswordSchema } from "../../../../schemas/auth";
 import { z } from "zod";
-import { changePassword, resetPassword } from "../../../../actions/auth/password-reset-request";
+import { changePassword } from "../../../../actions/auth/password-reset-request";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useTransition } from "react";
 import { LoaderIcon } from "lucide-react";
@@ -29,7 +29,18 @@ export default function PasswordResetChange() {
     const router = useRouter()
     const { toast } = useToast()
 
-    if (!searchParams || !searchParams.has("token")) return null;
+    if (!searchParams || !searchParams.has("token")) return (
+        <main className="flex min-h-screen flex-col items-center pt-24 justify-between">
+            <Card className="w-full max-w-sm">
+                <CardFooter className=" flex-col items-center">
+                    <Button onClick={() => router.push("/auth/login")} disabled={false} className="mt-5 bg-orange-500 w-full hover:bg-orange-400">
+                        <LoaderIcon className={!isPending ? "hidden" : "animate-spin mr-2"} />
+                        Voltar</Button>
+                </CardFooter>
+            </Card>
+        </main>
+    )
+
     const token = searchParams.get("token");
 
     async function onSubmit(values: z.infer<typeof NewPasswordSchema>,) {
@@ -47,13 +58,13 @@ export default function PasswordResetChange() {
 
             try {
                 const { success, error } = await changePassword(values, token);
-                if (error){
-                     toast({
+                if (error) {
+                    toast({
                         title: error,
                         description: ":(",
                         action: <ToastAction altText="tente novamente">ok</ToastAction>,
                         className: "bg-red-500 relative text-white",
-    
+
                     })
                     return
                 };
@@ -80,7 +91,7 @@ export default function PasswordResetChange() {
 
 
     }
-    
+
     return (
         <>
             <main className="flex min-h-screen flex-col items-center pt-24 justify-between">

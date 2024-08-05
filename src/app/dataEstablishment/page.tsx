@@ -50,7 +50,6 @@ export default function DataEstablishment() {
             })
         }
         const credentialValidate = DataEstablishmentSchema.safeParse(values);
-        console.log(credentialValidate.error)
         if (!credentialValidate?.success) {
             return toast({
                 title: "Dados inválidos",
@@ -62,10 +61,10 @@ export default function DataEstablishment() {
         }
         const id = dataSession?.user?.id as string
         const { imgUpload } = await handleUpload()
-
         const dataEstablishment = {
             name: name,
             contact: contact.replace(/\D/g, '')
+            
         }
         const { error, success } = await createDataEstablishment(dataEstablishment, id, imgUpload)
         if (success) {
@@ -88,9 +87,11 @@ export default function DataEstablishment() {
 
     async function handleUpload(): Promise<responseUpload> {
         if (imgDonwLoader !== undefined) {
+        console.log( imgDonwLoader[0])
+
             const storage = getStorage(app)
             const storageRef = ref(storage, "images/" + imgDonwLoader[0]?.name)
-            await uploadBytes(storageRef, imgDonwLoader[0]?.file)
+            await uploadBytes(storageRef, imgDonwLoader[0])
             const downLoadURL = await getDownloadURL(storageRef)
 
             return {

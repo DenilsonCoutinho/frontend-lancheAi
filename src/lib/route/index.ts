@@ -9,10 +9,10 @@ export const createRouteMatchers = (routes: ConfigRoutes, req: NextRequest) => {
 	const pathName = req.nextUrl.pathname;
 
 	// Preprocess route collections into sets
-	const publicRouteSet = new Set(publicRoutes.flat());
-	const protectedRouteSet = new Set(protectedRoutes.flat());
-	const authRouteSet = new Set(authRoutes.flat());
-	const apiRouteSet = new Set(apiRoutes.flat());
+	const publicRouteSet = new Set(publicRoutes);
+	const protectedRouteSet = new Set(protectedRoutes);
+	const authRouteSet = new Set(authRoutes);
+	const apiRouteSet = new Set(apiRoutes);
 
 	return {
 		isPublicRoute: publicRouteSet.has(pathName),

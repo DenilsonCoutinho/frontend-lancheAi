@@ -12,6 +12,7 @@ export const configRoutes: ConfigRoutes = {
 	authRoutes: ["/api/auth/signin"],
 	apiRoutes: ["/api/protected-api","/dataEstablishment",],
 	protectedRoutes: [
+		"/menu-food",
 		"/dashboard",
 		"/dataEstablishment",
 	],

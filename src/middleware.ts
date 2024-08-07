@@ -10,17 +10,17 @@ export default auth((req) => {
 	const { isPublicRoute, isProtectedRoute, isApiRoute, isAuthRoute } = createRouteMatchers(configRoutes, req);
 	const { nextUrl } = req;
 	const isLoggedIn = !!req.auth;
-	console.log(`Public: ${isPublicRoute}`);
-	console.log(`Protected: ${isProtectedRoute}`);
-	console.log(`Api: ${isApiRoute}`);
-	console.log(`Auth: ${isAuthRoute}`);
+	// console.log(`Public: ${isPublicRoute}`);
+	// console.log(`Protected: ${isProtectedRoute}`);
+	// console.log(`Api: ${isApiRoute}`);
+	// console.log(`Auth: ${isAuthRoute}`);
 	if (isProtectedRoute && !isLoggedIn) {
 		return NextResponse.redirect(new URL("/auth/login", req.url));
 	}
 	if (isLoggedIn && isPublicRoute) {
 		return NextResponse.redirect(new URL("/dashboard", req.url));
 	}
-	console.log(`Middleware: ${req.nextUrl.pathname}`);
+	// console.log(`Middleware: ${req.nextUrl.pathname}`);
 });
 
 export const config = {

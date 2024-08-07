@@ -9,6 +9,7 @@ import { verificationEstablishmentExist } from "../../services/dataEstablishment
 export const createDataEstablishment = async (credentials: z.infer<typeof DataEstablishmentSchema>, id: string, imageUrl?: string) => {
 
     const validCredentials = DataEstablishmentSchema.safeParse(credentials)
+    const idEstablishmentNameId = credentials.name.replaceAll(" ", "-")
 
     if (!validCredentials) {
         return {
@@ -19,7 +20,7 @@ export const createDataEstablishment = async (credentials: z.infer<typeof DataEs
     const verifyEstablishmentExist = await verificationEstablishmentExist(id)
     if (verifyEstablishmentExist) {
         return {
-            error:"Você já tem um estabelecimento criado!"
+            error: "Você já tem um estabelecimento criado!"
         }
     }
     try {
@@ -29,7 +30,8 @@ export const createDataEstablishment = async (credentials: z.infer<typeof DataEs
                     name: credentials.name,
                     contact: credentials.contact,
                     idEstablishment: id,
-                    logo: imageUrl
+                    logo: imageUrl,
+                    idEstablishmentName: idEstablishmentNameId
                 }
             }
         )

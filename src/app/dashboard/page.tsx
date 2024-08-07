@@ -23,13 +23,6 @@ export default function Dashboard() {
         getData()
 
     }, [])
-
-    // if (data === null) {
-    //     route.push('/')
-    // }else{
-    //     route.push('/dashboard')
-
-    // }
  
 
     return <p>

@@ -40,6 +40,7 @@ export default function DataEstablishment() {
 
 
     async function onSubmit(values: z.infer<typeof DataEstablishmentSchema>) {
+
         const dataSession = await getSession()
         if (!dataSession) {
             return toast({
@@ -87,7 +88,6 @@ export default function DataEstablishment() {
 
     async function handleUpload(): Promise<responseUpload> {
         if (imgDonwLoader !== undefined) {
-        console.log( imgDonwLoader[0])
 
             const storage = getStorage(app)
             const storageRef = ref(storage, "images/" + imgDonwLoader[0]?.name)

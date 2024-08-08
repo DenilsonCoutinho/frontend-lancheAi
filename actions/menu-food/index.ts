@@ -2,6 +2,7 @@
 import { db as prisma } from "@/lib/db";
 
 export default async function createCategory(category: string, id: string | null) {
+
     if (!category) {
         return { error: "Algo deu errado!" }
     }

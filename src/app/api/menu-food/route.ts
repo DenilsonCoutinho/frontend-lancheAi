@@ -1,5 +1,4 @@
 import { db as prisma } from "@/lib/db";
-import { revalidatePath, revalidateTag } from "next/cache";
 
 import { NextRequest, NextResponse } from "next/server"
 

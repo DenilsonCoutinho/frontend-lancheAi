@@ -1,10 +1,8 @@
 "use client"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEffect, useState, useTransition } from "react";
-import AboutProducts from "../../../components/menu-food/aboutProducts";
 import { DragDropContext, Droppable } from "@hello-pangea/dnd"
 import { useToast } from "@/components/ui/use-toast";
-import { FaRegCheckCircle, FaRegTimesCircle } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton"
@@ -17,19 +15,24 @@ import {
     SheetTrigger,
 } from "@/components/ui/sheet"
 import { getSession } from "next-auth/react";
-import createCategory from "../../../actions/menu-food";
-import { getCategories, updateAllCategoriesPosition } from "../../../services/menu-food";
+import { createCategory, deleteCategory } from "../../../../actions/menu-food";
+import { getCategories } from "../../../../services/menu-food";
+import { updateAllCategoriesPosition } from "../../../../actions/menu-food";
 import { LoaderIcon } from "lucide-react";
 import { ToastAction } from "@/components/ui/toast";
+import CategoryList from "../../../../components/menu-food/categoryList";
+import { SessionProviderUser, useSessionProps } from "../../../../context/dataSessionProvider";
 interface listArray {
     id: string
     name: string
     establishmentId: string
 }
 
+
 export default function MenuFood() {
     const { toast } = useToast()
     const [categories, setCategories] = useState<any>(undefined)
+    const [originalArrayCategories, setOriginalArrayCategories] = useState<listArray[]>([])
     const [closeModal, setCloseModal] = useState<boolean>(false)
     const [observer, setObserver] = useState<boolean>(false)
     const [loading, setLoading] = useState<boolean>(true)
@@ -77,17 +80,23 @@ export default function MenuFood() {
             const dataSession = await getSession()
             const idSession = dataSession?.user?.id as string
             const data = await getCategories(idSession)
+            console.log(data)
             setCategories(data)
+            setOriginalArrayCategories(data)
             setLoading(false)
         }
         getDataCategories()
     }, [])
-
+    async function filteredListCategories(search: string) {
+        const filteredItems = categories.filter((e: listArray) => e.name.toLocaleLowerCase().includes(search.toLocaleLowerCase()))
+        setOriginalArrayCategories(filteredItems)
+    }
     async function revalidateCategories() {
         const dataSession = await getSession()
         const idSession = dataSession?.user?.id as string
         const data = await getCategories(idSession)
         setCategories(data)
+        setOriginalArrayCategories(data)
     }
 
     async function createNewCategory() {
@@ -112,6 +121,28 @@ export default function MenuFood() {
                 className: "bg-green-500 relative text-white",
                 action: <ToastAction altText="ok">Ok</ToastAction>
             })
+        })
+    }
+    async function deleteSelectedCategory(id: string) {
+        startTransition(async () => {
+            const { error, success } = await deleteCategory(id)
+            if (error) {
+                toast({
+                    title: error,
+                    description: "",
+                    className: "bg-red-500 relative text-white",
+                    action: <ToastAction altText="ok">Ok</ToastAction>
+                })
+                return
+            }
+            await revalidateCategories()
+            toast({
+                title: success,
+                description: "",
+                className: "bg-green-500 relative text-white",
+                action: <ToastAction altText="ok">Ok</ToastAction>
+            })
+
         })
     }
 
@@ -144,19 +175,24 @@ export default function MenuFood() {
         }
         //setCategories serve para formatar o array para o cliente quando ele alterar.
         setCategories(item)
+        setOriginalArrayCategories(item)
+
         await updateAllCategoriesPosition(idSession, categories)
         toast({
             title: `As ordens das categorias foram alteradas.`,
-            description: <FaRegCheckCircle />
+            description: ""
             ,
             className: "bg-green-500 relative text-white",
-            action: <ToastAction  altText="ok">Ok</ToastAction>
+            action: <ToastAction altText="ok">Ok</ToastAction>
 
         })
     }
     if (loading) {
         return <div>
-            <Card className="w-full ">
+            <div className="bg-bgOrangeDefault  h-6 w-full">
+                <p className="text-white max-w-[1200px] m-auto">Lancha AI</p>
+            </div>
+            <Card className="w-full mt-4">
                 <CardHeader>
                     <CardTitle className="text-2xl">Cardápio</CardTitle>
                     <CardDescription>
@@ -184,10 +220,12 @@ export default function MenuFood() {
             </div>
         </div>
     }
-
     return (
         <div>
-            <Card className="w-full ">
+            <div className="bg-bgOrangeDefault  h-6 w-full">
+                <p className="text-white max-w-[1200px] m-auto">Lancha AI</p>
+            </div>
+            <Card className="max-w-[1200px] m-auto mt-4 w-full ">
                 <CardHeader>
                     <CardTitle className="text-2xl">Cardápio</CardTitle>
                     <CardDescription>
@@ -196,10 +234,10 @@ export default function MenuFood() {
                 </CardHeader>
             </Card>
 
-            {!loading && <div className="border rounded-md shadow-sm bg-white px-5 py-10 mt-5 w-full">
+            {!loading && <div className="border rounded-md shadow-sm bg-white px-5 py-10 mt-5 max-w-[1200px] m-auto  w-full">
                 <Card className="w-full pt-5 px-3">
                     <CardContent className="flex items-center justify-between">
-                        <Input type="text" placeholder="Pesquisar" className="max-w-xs" />
+                        <Input onChange={(e) => filteredListCategories(e.target.value)} type="text" placeholder="Pesquisar" className="max-w-xs" />
                         <Sheet open={closeModal} onOpenChange={setCloseModal}>
                             <SheetTrigger onClick={() => setObserver(!observer)} className="bg-orange-500 text-white   h-10 px-4 py-2 sm:h-9 sm:rounded-md sm:px-3 lg:h-11 lg:rounded-md lg:px-8">
                                 + Criar categoria
@@ -213,7 +251,6 @@ export default function MenuFood() {
                                     <Button disabled={isPending} onClick={() => { createNewCategory() }} id="button-category-create" color="" className="bg-bgOrangeDefault hover:bg-orange-400 ">
                                         {!isPending ? "Criar" : "Criando"}
                                         <LoaderIcon className={!isPending ? "hidden" : "animate-spin mr-2"} />
-
                                     </Button>
                                 </SheetHeader>
                             </SheetContent>
@@ -221,14 +258,13 @@ export default function MenuFood() {
                     </CardContent>
                 </Card>
 
-                {categories?.length > 0 ? <DragDropContext onDragEnd={onDragEnd}>
+                {originalArrayCategories?.length > 0 ? <DragDropContext onDragEnd={onDragEnd}>
                     <Droppable droppableId="categories" type="list" direction="vertical" >
                         {(provided) => (
                             <article className="" ref={provided.innerRef} {...provided.droppableProps}>
                                 {
-                                    categories &&
-                                    categories?.map((task: any, index: any) => {
-                                        return <AboutProducts key={task?.id} categories={task} index={index} />
+                                    originalArrayCategories?.map((categories: listArray, index: any) => {
+                                        return <CategoryList onClick={() => deleteSelectedCategory(categories.id)} key={categories?.id} categories={categories} index={index} />
                                     })
                                 }
                                 {provided.placeholder}

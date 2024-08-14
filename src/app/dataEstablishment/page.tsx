@@ -13,6 +13,7 @@ import { maskPhone } from "@/utils/maskPhone";
 import { z } from "zod";
 import { DataEstablishmentSchema } from "../../../schemas/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 export default function DataEstablishment() {
     const [isPending, startTransition] = useTransition()
     const [imgDonwLoader, setImgDonwLoader] = useState<any>()
@@ -107,12 +108,20 @@ export default function DataEstablishment() {
             <div className="bg-bgOrangeDefault  h-6 w-full">
                 <p className="text-white max-w-[1200px] m-auto">Lancha AI</p>
             </div>
-            <div className="max-w-[1200px] m-auto">
-                <h1 className="text-black text-2xl mt-10">Dados do seu ministério</h1>
+            <Card className="max-w-[1200px] m-auto mt-4 w-full ">
+                <CardHeader>
+                    <CardTitle className="text-2xl">Dados do seu ministério</CardTitle>
+                    <CardDescription>
+                    Informações básicas
+                    </CardDescription>
+                </CardHeader>
+            </Card>
+            <div className="max-w-[1200px] m-auto mt-8">
+                {/* <h1 className="text-black text-2xl mt-10">Dados do seu ministério</h1>
                 <div className="flex flex-row items-center mt-4">
                     <p className="text-gray-300 text-lg 2xl:w-[20%] lg:w-[27%]">Informações básicas</p>
                     <div className="border-t border-gray-300  w-full"></div>
-                </div>
+                </div> */}
                 <div className="flex w-full">
                     <div className="flex flex-col w-full">
                         <Form {...form} >

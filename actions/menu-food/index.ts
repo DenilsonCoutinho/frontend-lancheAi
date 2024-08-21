@@ -1,5 +1,6 @@
 "use server"
 import { db as prisma } from "@/lib/db";
+import { loadCategoriesOrder } from "@/lib/localStorage";
 
 interface categoryProps {
     id: string
@@ -14,6 +15,7 @@ export async function createCategory(category: string, id: string | null) {
     }
 
     try {
+        console.log(category)
         const createCategory = await prisma.category.create({
             data: {
                 name: category,
@@ -24,29 +26,21 @@ export async function createCategory(category: string, id: string | null) {
         return { success: "Criado com sucesso!" }
 
     } catch (err) {
-
+        console.log(err)
         return { error: "ocorreu um erro!" }
     }
 
 
 }
 
-export const updateAllCategoriesPosition = async (establishmentId: string, categoriesData: any) => {
+export const updateAllCategoriesPosition = async (establishmentId: string, newCategoryOrder: { id: string; order: number }[]) => {
     try {
-        await prisma.$transaction(async () => {
-
-            await prisma.category.deleteMany({
-                where: { establishmentId },
+        for (const { id, order } of newCategoryOrder) {
+            await prisma.category.update({
+                where: { id: id },
+                data: { order: order },
             });
-
-            await prisma.category.createMany({
-                data: categoriesData.map((category: categoryProps) => ({
-                    ...category,
-                    name: category.name,
-                    establishmentId: establishmentId
-                })),
-            });
-        })
+        }
 
         return { success: "Categorias atualizada com sucesso" }
     } catch (error) {

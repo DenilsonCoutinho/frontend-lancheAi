@@ -75,8 +75,8 @@ export default function Login() {
                 return;
             }
 
-            await new Promise(resolve => setTimeout(resolve, 2000))
-            router.push('/dashboard')
+            // await new Promise(resolve => setTimeout(resolve, 2000))
+            // router.push('/dashboard')
         })
     }
 

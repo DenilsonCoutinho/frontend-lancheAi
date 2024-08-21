@@ -27,6 +27,6 @@ export default function Dashboard() {
 
     return <p>
         {JSON.stringify(data)}
-        <Button onClick={() => signOut({ callbackUrl: "/" })}>Sign In</Button>
+        <Button onClick={() => signOut({ callbackUrl: "/auth/login" })}>Sign In</Button>
     </p>
 }

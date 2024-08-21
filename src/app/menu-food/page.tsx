@@ -15,13 +15,12 @@ import {
     SheetTrigger,
 } from "@/components/ui/sheet"
 import { getSession } from "next-auth/react";
-import { createCategory, deleteCategory } from "../../../../actions/menu-food";
-import { getCategories } from "../../../../services/menu-food";
-import { updateAllCategoriesPosition } from "../../../../actions/menu-food";
+import { createCategory, deleteCategory } from "../../../actions/menu-food";
+import { getCategories } from "../../../services/menu-food";
+import { updateAllCategoriesPosition } from "../../../actions/menu-food";
 import { LoaderIcon } from "lucide-react";
 import { ToastAction } from "@/components/ui/toast";
-import CategoryList from "../../../../components/menu-food/categoryList";
-import { SessionProviderUser, useSessionProps } from "../../../../context/dataSessionProvider";
+import CategoryList from "../../../components/menu-food/categoryList";
 interface listArray {
     id: string
     name: string
@@ -38,7 +37,9 @@ export default function MenuFood() {
     const [loading, setLoading] = useState<boolean>(true)
     const [createCategories, setCreateCategories] = useState<string>("")
     const [isPending, startTransition] = useTransition()
-
+    
+    
+      
     useEffect(() => {
         const handleKeyPress = async (e: any) => {
             if (e.key === "Enter" && observer) {
@@ -80,9 +81,10 @@ export default function MenuFood() {
             const dataSession = await getSession()
             const idSession = dataSession?.user?.id as string
             const data = await getCategories(idSession)
-            console.log(data)
-            setCategories(data)
-            setOriginalArrayCategories(data)
+            const sortedCategories = data.sort((a:any, b:any) => a?.order - b?.order );
+        console.log(sortedCategories)
+            setCategories(sortedCategories)
+            setOriginalArrayCategories(sortedCategories)
             setLoading(false)
         }
         getDataCategories()
@@ -95,8 +97,10 @@ export default function MenuFood() {
         const dataSession = await getSession()
         const idSession = dataSession?.user?.id as string
         const data = await getCategories(idSession)
-        setCategories(data)
-        setOriginalArrayCategories(data)
+        const sortedCategories = data.sort((a:any, b:any) => a?.order - b?.order );
+        console.log(sortedCategories)
+        setCategories(sortedCategories)
+        setOriginalArrayCategories(sortedCategories)
     }
 
     async function createNewCategory() {
@@ -177,7 +181,13 @@ export default function MenuFood() {
         setCategories(item)
         setOriginalArrayCategories(item)
 
-        await updateAllCategoriesPosition(idSession, categories)
+        const newCategoryOrder = item.map((item, index) => ({
+            id: item.id,
+            name: item.name,
+            order: index // O index é o novo valor de order
+          }));
+          console.log(newCategoryOrder)
+        await updateAllCategoriesPosition(idSession, newCategoryOrder)
         toast({
             title: `As ordens das categorias foram alteradas.`,
             description: ""

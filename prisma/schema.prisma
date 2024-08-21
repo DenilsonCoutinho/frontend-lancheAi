@@ -36,10 +36,13 @@ model Establishment {
 
 model Category {
   id              String        @id @default(auto()) @map("_id") @db.ObjectId
-  name            String        @unique
+  name            String
   establishmentId String
   establishment   Establishment @relation(fields: [establishmentId], references: [id])
   items           Item[]
+  order           Int? // Novo campo para definir a ordem das categorias
+
+  @@unique([name, establishmentId])
 }
 
 model Item {

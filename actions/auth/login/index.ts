@@ -35,6 +35,9 @@ export const login = async (credentials: z.infer<typeof CredentialsSchema>) => {
 				error: "Usuário não encontrado",
 			};
 		}
+		const oneHourInMilliseconds = 60 * 60 * 1000;  // 1 hora em milissegundos
+		const currentTime = new Date();  // Hora atual
+		const timeDifference = Number(currentTime) - Number(userExist?.createdAt) //cacular
 
 		const validPassword = await bcryptjs.compare(password, userExist?.hashedPassword as string);
 
@@ -43,14 +46,21 @@ export const login = async (credentials: z.infer<typeof CredentialsSchema>) => {
 				error: "Senha ou email incorreto!"
 			}
 		}
-
+		if (timeDifference > oneHourInMilliseconds) {
+			return await signIn("credentials", {
+				email,
+				password,
+				redirectTo: '/dashboard'
+			},);
+		}
 		await signIn("credentials", {
 			email,
 			password,
-			// redirectTo: '/dashboard'
+			redirectTo: '/dataEstablishment',
+			redirect: true
 		},);
-		
-		
+
+
 
 	} catch (err) {
 

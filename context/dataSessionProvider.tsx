@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { auth } from '../auth';
 
 interface SessionProps {
@@ -11,11 +11,21 @@ const SessionContext = createContext<SessionProps | undefined>(undefined);
 interface SessionProviderProps {
     children: ReactNode;
 }
+import { getSession } from "next-auth/react";
 
-export async function SessionProviderUser({ children }: SessionProviderProps) {
-    const session = await auth()
-    const idSession = session?.user?.id as string
-    const [id, setId] = useState<string>(idSession);
+export function SessionProviderUser({ children }: SessionProviderProps) {
+
+    const [id, setId] = useState<string>('');
+
+    async function currentSession() {
+        const session = await getSession()
+        setId(session?.user?.id as string)
+        return
+    }
+
+    useEffect(() => {
+        currentSession()
+    }, [])
     return (
         <SessionContext.Provider value={{ id, setId }}>
             {children}

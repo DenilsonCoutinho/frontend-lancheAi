@@ -1,12 +1,6 @@
 "use server"
 import { db as prisma } from "@/lib/db";
-import { loadCategoriesOrder } from "@/lib/localStorage";
 
-interface categoryProps {
-    id: string
-    name?: string
-    establishmentId?: string
-}
 
 export async function createCategory(category: string, id: string | null) {
 
@@ -15,8 +9,7 @@ export async function createCategory(category: string, id: string | null) {
     }
 
     try {
-        console.log(category)
-        const createCategory = await prisma.category.create({
+        await prisma.category.create({
             data: {
                 name: category,
                 establishmentId: id as string
@@ -26,14 +19,28 @@ export async function createCategory(category: string, id: string | null) {
         return { success: "Criado com sucesso!" }
 
     } catch (err) {
-        console.log(err)
         return { error: "ocorreu um erro!" }
     }
 
 
 }
 
-export const updateAllCategoriesPosition = async (establishmentId: string, newCategoryOrder: { id: string; order: number }[]) => {
+export async function editNameCategoryByid(id: string, newNameCategory: string,) {
+    console.log(" categoria:" + newNameCategory, " id:" + id)
+
+    try {
+        await prisma.category.update({
+            where: { id },
+            data: {
+                name: newNameCategory
+            }
+        })
+    } catch (error) {
+
+    }
+}
+
+export const updateAllCategoriesPosition = async (newCategoryOrder: { id: string; order: number }[]) => {
     try {
         for (const { id, order } of newCategoryOrder) {
             await prisma.category.update({
@@ -54,7 +61,7 @@ export const deleteCategory = async (id: string) => {
     }
 
     try {
-        const deletedCategory = await prisma.category.delete({
+        await prisma.category.delete({
             where: { id }
         })
         return { success: "Categoria deletada com sucesso!" }

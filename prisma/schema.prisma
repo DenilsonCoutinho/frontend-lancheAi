@@ -32,6 +32,8 @@ model Establishment {
   establishment       User       @relation(fields: [idEstablishment], references: [id])
   categories          Category[]
   logo                String?
+  createdAt      DateTime        @default(now())
+
 }
 
 model Category {

@@ -15,12 +15,13 @@ import {
     SheetTrigger,
 } from "@/components/ui/sheet"
 import { getSession } from "next-auth/react";
-import { createCategory, deleteCategory } from "../../../actions/menu-food";
-import { getCategories } from "../../../services/menu-food";
-import { updateAllCategoriesPosition } from "../../../actions/menu-food";
+import { createCategory, deleteCategory, editNameCategoryByid } from "../../../../actions/menu-food";
+import { getCategories } from "../../../../services/menu-food";
+import { updateAllCategoriesPosition } from "../../../../actions/menu-food";
 import { LoaderIcon } from "lucide-react";
 import { ToastAction } from "@/components/ui/toast";
-import CategoryList from "../../../components/menu-food/categoryList";
+import CategoryList from "../../../../components/menu-food/categoryList";
+import { useSessionProps } from "../../../../context/dataSessionProvider";
 interface listArray {
     id: string
     name: string
@@ -30,23 +31,22 @@ interface listArray {
 
 export default function MenuFood() {
     const { toast } = useToast()
-    const [categories, setCategories] = useState<any>(undefined)
     const [originalArrayCategories, setOriginalArrayCategories] = useState<listArray[]>([])
     const [closeModal, setCloseModal] = useState<boolean>(false)
     const [observer, setObserver] = useState<boolean>(false)
     const [loading, setLoading] = useState<boolean>(true)
     const [createCategories, setCreateCategories] = useState<string>("")
+    const [myNewCategoryName, setMyNewCategoryName] = useState<string>("")
+    console.log(myNewCategoryName)
     const [isPending, startTransition] = useTransition()
-    
-    
-      
+    const { id, setId } = useSessionProps()
+
     useEffect(() => {
         const handleKeyPress = async (e: any) => {
             if (e.key === "Enter" && observer) {
                 startTransition(async () => {
-                    const dataSession = await getSession();
-                    const idSession = dataSession?.user?.id as string;
-                    const { success, error } = await createCategory(createCategories, idSession);
+
+                    const { success, error } = await createCategory(createCategories, id);
                     await revalidateCategories();
                     setCloseModal(false);
                     if (success) {
@@ -76,38 +76,39 @@ export default function MenuFood() {
         };
     }, [observer, createCategories]);
 
+
     useEffect(() => {
         async function getDataCategories() {
-            const dataSession = await getSession()
-            const idSession = dataSession?.user?.id as string
-            const data = await getCategories(idSession)
-            const sortedCategories = data.sort((a:any, b:any) => a?.order - b?.order );
-        console.log(sortedCategories)
-            setCategories(sortedCategories)
+            const data = await getCategories(id)
+            const sortedCategories = data.sort((a: any, b: any) => a?.order - b?.order);
             setOriginalArrayCategories(sortedCategories)
             setLoading(false)
         }
-        getDataCategories()
-    }, [])
+        if (id) {
+            getDataCategories()
+        }
+    }, [id])
     async function filteredListCategories(search: string) {
-        const filteredItems = categories.filter((e: listArray) => e.name.toLocaleLowerCase().includes(search.toLocaleLowerCase()))
+        const filteredItems = originalArrayCategories.filter((e: listArray) => e.name.toLocaleLowerCase().includes(search.toLocaleLowerCase()))
         setOriginalArrayCategories(filteredItems)
     }
     async function revalidateCategories() {
-        const dataSession = await getSession()
-        const idSession = dataSession?.user?.id as string
-        const data = await getCategories(idSession)
-        const sortedCategories = data.sort((a:any, b:any) => a?.order - b?.order );
-        console.log(sortedCategories)
-        setCategories(sortedCategories)
+        const data = await getCategories(id)
+        const sortedCategories = data.sort((a: any, b: any) => a?.order - b?.order);
         setOriginalArrayCategories(sortedCategories)
+    }
+    async function editNameCategory(id: string, newName: string) {
+        await editNameCategoryByid(id, newName)
+        await revalidateCategories()
+
+        alert("atualizou ")
+        return
     }
 
     async function createNewCategory() {
         startTransition(async () => {
-            const dataSession = await getSession()
-            const idSession = dataSession?.user?.id as string
-            const { success, error } = await createCategory(createCategories, idSession)
+
+            const { success, error } = await createCategory(createCategories, id)
             await revalidateCategories()
             setCloseModal(false)
             if (success) {
@@ -165,10 +166,8 @@ export default function MenuFood() {
 
     async function onDragEnd(res: any) {
         if (!res.destination) return;
-        const dataSession = await getSession()
-        const idSession = dataSession?.user?.id as string
-        const item: listArray[] = remodelList(categories, res.source.index, res.destination.index)
-        const resComparation = await compareArray(categories, item)
+        const item: listArray[] = remodelList(originalArrayCategories, res.source.index, res.destination.index)
+        const resComparation = await compareArray(originalArrayCategories, item)
         if (resComparation) {
             toast({
                 title: `Categoria não alterada!`,
@@ -177,17 +176,14 @@ export default function MenuFood() {
             })
             return
         }
-        //setCategories serve para formatar o array para o cliente quando ele alterar.
-        setCategories(item)
         setOriginalArrayCategories(item)
 
         const newCategoryOrder = item.map((item, index) => ({
             id: item.id,
             name: item.name,
             order: index // O index é o novo valor de order
-          }));
-          console.log(newCategoryOrder)
-        await updateAllCategoriesPosition(idSession, newCategoryOrder)
+        }));
+        await updateAllCategoriesPosition(newCategoryOrder)
         toast({
             title: `As ordens das categorias foram alteradas.`,
             description: ""
@@ -202,7 +198,8 @@ export default function MenuFood() {
             <div className="bg-bgOrangeDefault  h-6 w-full">
                 <p className="text-white max-w-[1200px] m-auto">Lancha AI</p>
             </div>
-            <Card className="w-full mt-4">
+
+            <Card className="max-w-[1200px] m-auto mt-4 w-full ">
                 <CardHeader>
                     <CardTitle className="text-2xl">Cardápio</CardTitle>
                     <CardDescription>
@@ -210,7 +207,7 @@ export default function MenuFood() {
                     </CardDescription>
                 </CardHeader>
             </Card>
-            <div className="border rounded-md shadow-sm bg-white px-5 py-10 mt-5 w-full">
+            <div className="border rounded-md shadow-sm bg-white px-5 py-10 mt-5 max-w-[1200px] m-auto w-full">
                 <Card className="w-full pt-5 px-3">
                     <CardContent className="flex items-center justify-between">
                         <Skeleton className="w-[200px] h-10 rounded-md" />
@@ -274,7 +271,7 @@ export default function MenuFood() {
                             <article className="" ref={provided.innerRef} {...provided.droppableProps}>
                                 {
                                     originalArrayCategories?.map((categories: listArray, index: any) => {
-                                        return <CategoryList onClick={() => deleteSelectedCategory(categories.id)} key={categories?.id} categories={categories} index={index} />
+                                        return <CategoryList newNameCategory={(e) => setMyNewCategoryName(e)} onClickEdit={() => editNameCategory(categories.id, myNewCategoryName)} onClickDelete={() => deleteSelectedCategory(categories.id)} key={categories?.id} categories={categories} index={index} />
                                     })
                                 }
                                 {provided.placeholder}
